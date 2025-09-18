@@ -56,7 +56,7 @@ const EmailBindModal = ({
       <div className='space-y-4 py-4'>
         <div className='flex gap-3'>
           <Input
-            placeholder={t('输入邮箱地址')}
+            placeholder={t('输入QQ邮箱地址')}
             onChange={(value) => handleInputChange('email', value)}
             name='email'
             type='email'

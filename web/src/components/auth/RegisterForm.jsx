@@ -475,7 +475,7 @@ const RegisterForm = () => {
                     <Form.Input
                       field='email'
                       label={t('邮箱')}
-                      placeholder={t('输入邮箱地址')}
+                      placeholder={t('输入QQ邮箱地址')}
                       name='email'
                       type='email'
                       onChange={(value) => handleChange('email', value)}
