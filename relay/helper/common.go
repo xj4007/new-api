@@ -93,6 +93,22 @@ func Done(c *gin.Context) {
 	_ = StringData(c, "[DONE]")
 }
 
+func SendClaudeErrorResponse(c *gin.Context, errorType string, message string) {
+	errorResponse := dto.ClaudeResponse{
+		Type: "error",
+		Error: map[string]interface{}{
+			"type":    errorType,
+			"message": message,
+		},
+	}
+	jsonData, err := common.Marshal(errorResponse)
+	if err != nil {
+		logger.LogError(c, "error marshalling claude error response: "+err.Error())
+		return
+	}
+	ClaudeChunkData(c, errorResponse, string(jsonData))
+}
+
 func WssString(c *gin.Context, ws *websocket.Conn, str string) error {
 	if ws == nil {
 		logger.LogError(c, "websocket connection is nil")

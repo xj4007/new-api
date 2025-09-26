@@ -629,9 +629,17 @@ func HandleStreamResponseData(c *gin.Context, info *relaycommon.RelayInfo, claud
 	err := common.UnmarshalJsonStr(data, &claudeResponse)
 	if err != nil {
 		common.SysLog("error unmarshalling stream response: " + err.Error())
+		// Send error response to client in Claude format for better user experience
+		if info.RelayFormat == types.RelayFormatClaude {
+			helper.SendClaudeErrorResponse(c, "upstream_error", "Bad response body from upstream: "+err.Error())
+		}
 		return types.NewError(err, types.ErrorCodeBadResponseBody)
 	}
 	if claudeError := claudeResponse.GetClaudeError(); claudeError != nil && claudeError.Type != "" {
+		// Send error response to client in Claude format for better user experience
+		if info.RelayFormat == types.RelayFormatClaude {
+			helper.SendClaudeErrorResponse(c, claudeError.Type, claudeError.Message)
+		}
 		return types.WithClaudeError(*claudeError, http.StatusInternalServerError)
 	}
 	if info.RelayFormat == types.RelayFormatClaude {
