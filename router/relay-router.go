@@ -74,6 +74,7 @@ func SetRelayRouter(router *gin.Engine) {
 	{
 		//http router
 		httpRouter := relayV1Router.Group("")
+		httpRouter.Use(middleware.ContentModerationMiddleware())
 		httpRouter.Use(middleware.Distribute())
 
 		// claude related routes
