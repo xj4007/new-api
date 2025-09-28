@@ -175,7 +175,7 @@ func Register(c *gin.Context) {
 		if user.Email == "" || user.VerificationCode == "" {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
-				"message": "管理员开启了邮箱验证，请输入邮箱地址和验证码",
+				"message": "管理员开启了邮箱验证，请输入QQ邮箱地址和验证码",
 			})
 			return
 		}

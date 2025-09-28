@@ -81,7 +81,7 @@ const PasswordResetForm = () => {
 
   async function handleSubmit(e) {
     if (!email) {
-      showError(t('请输入邮箱地址'));
+      showError(t('请输入QQ邮箱地址'));
       return;
     }
     if (turnstileEnabled && turnstileToken === '') {
@@ -135,7 +135,7 @@ const PasswordResetForm = () => {
                   <Form.Input
                     field='email'
                     label={t('邮箱')}
-                    placeholder={t('请输入您的邮箱地址')}
+                    placeholder={t('请输入您的QQ邮箱地址')}
                     name='email'
                     value={email}
                     onChange={handleChange}
