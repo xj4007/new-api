@@ -292,7 +292,7 @@ func testChannel(channel *model.Channel, testModel string) testResult {
 		ModelName:        info.OriginModelName,
 		TokenName:        "模型测试",
 		Quota:            quota,
-		Content:          "模型测试",
+		Content:          "Translate the phrase 'Thank you for your patience' into Spanish.",
 		UseTimeSeconds:   int(consumedTime),
 		IsStream:         info.IsStream,
 		Group:            info.UsingGroup,
