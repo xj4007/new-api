@@ -51,6 +51,7 @@ import SetupCheck from './components/layout/SetupCheck';
 const Home = lazy(() => import('./pages/Home'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const About = lazy(() => import('./pages/About'));
+const TokenUsage = lazy(() => import('./pages/TokenUsage'));
 
 function App() {
   const location = useLocation();
@@ -291,6 +292,14 @@ function App() {
                 <Pricing />
               </Suspense>
             )
+          }
+        />
+        <Route
+          path='/token-query'
+          element={
+            <Suspense fallback={<Loading></Loading>} key={location.pathname}>
+              <TokenUsage />
+            </Suspense>
           }
         />
         <Route

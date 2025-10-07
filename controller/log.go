@@ -5,6 +5,7 @@ import (
 	"one-api/common"
 	"one-api/model"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -83,18 +84,29 @@ func SearchUserLogs(c *gin.Context) {
 
 func GetLogByKey(c *gin.Context) {
 	key := c.Query("key")
-	logs, err := model.GetLogByKey(key)
+	pageInfo := common.GetPageQuery(c)
+	order := strings.ToLower(c.DefaultQuery("order", "desc"))
+	sortDesc := order != "asc"
+	logs, total, err := model.GetLogByKeyWithPagination(key, pageInfo.GetStartIdx(), pageInfo.GetPageSize(), sortDesc)
 	if err != nil {
-		c.JSON(200, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": err.Error(),
 		})
 		return
 	}
-	c.JSON(200, gin.H{
-		"success": true,
-		"message": "",
-		"data":    logs,
+	pageInfo.SetTotal(int(total))
+	pageInfo.SetItems(logs)
+	c.JSON(http.StatusOK, gin.H{
+		"success":  true,
+		"message":  "",
+		"data":     logs,
+		"total":    total,
+		"pagination": gin.H{
+			"page":      pageInfo.Page,
+			"page_size": pageInfo.PageSize,
+			"total":     total,
+		},
 	})
 }
 
