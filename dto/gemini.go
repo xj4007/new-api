@@ -2,14 +2,17 @@ package dto
 
 import (
 	"encoding/json"
-	"github.com/gin-gonic/gin"
-	"one-api/common"
-	"one-api/logger"
-	"one-api/types"
 	"strings"
+
+	"github.com/QuantumNous/new-api/common"
+	"github.com/QuantumNous/new-api/logger"
+	"github.com/QuantumNous/new-api/types"
+
+	"github.com/gin-gonic/gin"
 )
 
 type GeminiChatRequest struct {
+	Requests           []GeminiChatRequest        `json:"requests,omitempty"` // For batch requests
 	Contents           []GeminiChatContent        `json:"contents"`
 	SafetySettings     []GeminiChatSafetySettings `json:"safetySettings,omitempty"`
 	GenerationConfig   GeminiChatGenerationConfig `json:"generationConfig,omitempty"`
@@ -138,6 +141,39 @@ func (r *GeminiChatRequest) SetTools(tools []GeminiChatTool) {
 type GeminiThinkingConfig struct {
 	IncludeThoughts bool `json:"includeThoughts,omitempty"`
 	ThinkingBudget  *int `json:"thinkingBudget,omitempty"`
+	// TODO Conflict with thinkingbudget.
+	ThinkingLevel json.RawMessage `json:"thinkingLevel,omitempty"`
+}
+
+// UnmarshalJSON allows GeminiThinkingConfig to accept both snake_case and camelCase fields.
+func (c *GeminiThinkingConfig) UnmarshalJSON(data []byte) error {
+	type Alias GeminiThinkingConfig
+	var aux struct {
+		Alias
+		IncludeThoughtsSnake *bool           `json:"include_thoughts,omitempty"`
+		ThinkingBudgetSnake  *int            `json:"thinking_budget,omitempty"`
+		ThinkingLevelSnake   json.RawMessage `json:"thinking_level,omitempty"`
+	}
+
+	if err := common.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	*c = GeminiThinkingConfig(aux.Alias)
+
+	if aux.IncludeThoughtsSnake != nil {
+		c.IncludeThoughts = *aux.IncludeThoughtsSnake
+	}
+
+	if aux.ThinkingBudgetSnake != nil {
+		c.ThinkingBudget = aux.ThinkingBudgetSnake
+	}
+
+	if len(aux.ThinkingLevelSnake) > 0 {
+		c.ThinkingLevel = aux.ThinkingLevelSnake
+	}
+
+	return nil
 }
 
 func (c *GeminiThinkingConfig) SetThinkingBudget(budget int) {
@@ -179,8 +215,12 @@ type FunctionCall struct {
 }
 
 type GeminiFunctionResponse struct {
-	Name     string                 `json:"name"`
-	Response map[string]interface{} `json:"response"`
+	Name         string                 `json:"name"`
+	Response     map[string]interface{} `json:"response"`
+	WillContinue json.RawMessage        `json:"willContinue,omitempty"`
+	Scheduling   json.RawMessage        `json:"scheduling,omitempty"`
+	Parts        json.RawMessage        `json:"parts,omitempty"`
+	ID           json.RawMessage        `json:"id,omitempty"`
 }
 
 type GeminiPartExecutableCode struct {
@@ -199,11 +239,15 @@ type GeminiFileData struct {
 }
 
 type GeminiPart struct {
-	Text                string                         `json:"text,omitempty"`
-	Thought             bool                           `json:"thought,omitempty"`
-	InlineData          *GeminiInlineData              `json:"inlineData,omitempty"`
-	FunctionCall        *FunctionCall                  `json:"functionCall,omitempty"`
-	FunctionResponse    *GeminiFunctionResponse        `json:"functionResponse,omitempty"`
+	Text             string                  `json:"text,omitempty"`
+	Thought          bool                    `json:"thought,omitempty"`
+	InlineData       *GeminiInlineData       `json:"inlineData,omitempty"`
+	FunctionCall     *FunctionCall           `json:"functionCall,omitempty"`
+	ThoughtSignature json.RawMessage         `json:"thoughtSignature,omitempty"`
+	FunctionResponse *GeminiFunctionResponse `json:"functionResponse,omitempty"`
+	// Optional. Media resolution for the input media.
+	MediaResolution     json.RawMessage                `json:"mediaResolution,omitempty"`
+	VideoMetadata       json.RawMessage                `json:"videoMetadata,omitempty"`
 	FileData            *GeminiFileData                `json:"fileData,omitempty"`
 	ExecutableCode      *GeminiPartExecutableCode      `json:"executableCode,omitempty"`
 	CodeExecutionResult *GeminiPartCodeExecutionResult `json:"codeExecutionResult,omitempty"`
@@ -273,6 +317,7 @@ type GeminiChatGenerationConfig struct {
 	ResponseModalities []string              `json:"responseModalities,omitempty"`
 	ThinkingConfig     *GeminiThinkingConfig `json:"thinkingConfig,omitempty"`
 	SpeechConfig       json.RawMessage       `json:"speechConfig,omitempty"` // RawMessage to allow flexible speech config
+	ImageConfig        json.RawMessage       `json:"imageConfig,omitempty"`  // RawMessage to allow flexible image config
 }
 
 type MediaResolution string
@@ -291,12 +336,13 @@ type GeminiChatSafetyRating struct {
 
 type GeminiChatPromptFeedback struct {
 	SafetyRatings []GeminiChatSafetyRating `json:"safetyRatings"`
+	BlockReason   *string                  `json:"blockReason,omitempty"`
 }
 
 type GeminiChatResponse struct {
-	Candidates     []GeminiChatCandidate    `json:"candidates"`
-	PromptFeedback GeminiChatPromptFeedback `json:"promptFeedback"`
-	UsageMetadata  GeminiUsageMetadata      `json:"usageMetadata"`
+	Candidates     []GeminiChatCandidate     `json:"candidates"`
+	PromptFeedback *GeminiChatPromptFeedback `json:"promptFeedback,omitempty"`
+	UsageMetadata  GeminiUsageMetadata       `json:"usageMetadata"`
 }
 
 type GeminiUsageMetadata struct {
@@ -326,6 +372,7 @@ type GeminiImageParameters struct {
 	SampleCount      int    `json:"sampleCount,omitempty"`
 	AspectRatio      string `json:"aspectRatio,omitempty"`
 	PersonGeneration string `json:"personGeneration,omitempty"`
+	ImageSize        string `json:"imageSize,omitempty"`
 }
 
 type GeminiImageResponse struct {
