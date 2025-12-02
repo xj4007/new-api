@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"one-api/logger"
-	"one-api/setting"
+	"github.com/QuantumNous/new-api/logger"
+	"github.com/QuantumNous/new-api/setting"
 	"regexp"
 	"strings"
 

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"one-api/dto"
+	"github.com/QuantumNous/new-api/dto"
 	"regexp"
 	"strings"
 )
