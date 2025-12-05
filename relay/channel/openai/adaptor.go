@@ -174,18 +174,6 @@ func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
 		if info.RelayFormat == types.RelayFormatClaude || info.RelayFormat == types.RelayFormatGemini {
 			return fmt.Sprintf("%s/v1/chat/completions", info.ChannelBaseUrl), nil
 		}
-
-		// 对于 Responses API，检查是否需要去掉 /v1 前缀
-		// 如果 base_url 不是官方 OpenAI 地址，则去掉 /v1 前缀，使用 /responses
-		if info.RelayMode == relayconstant.RelayModeResponses {
-			requestPath := info.RequestURLPath
-			// 非官方 OpenAI 地址，去掉 /v1 前缀
-			if !strings.Contains(info.ChannelBaseUrl, "api.openai.com") {
-				requestPath = strings.Replace(requestPath, "/v1/responses", "/responses", 1)
-			}
-			return relaycommon.GetFullRequestURL(info.ChannelBaseUrl, requestPath, info.ChannelType), nil
-		}
-
 		return relaycommon.GetFullRequestURL(info.ChannelBaseUrl, info.RequestURLPath, info.ChannelType), nil
 	}
 }
