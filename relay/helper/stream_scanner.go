@@ -14,6 +14,7 @@ import (
 	"github.com/QuantumNous/new-api/constant"
 	"github.com/QuantumNous/new-api/logger"
 	relaycommon "github.com/QuantumNous/new-api/relay/common"
+	"github.com/QuantumNous/new-api/service"
 	"github.com/QuantumNous/new-api/setting/operation_setting"
 
 	"github.com/bytedance/gopkg/util/gopool"
@@ -40,10 +41,17 @@ func StreamScannerHandler(c *gin.Context, resp *http.Response, info *relaycommon
 		return
 	}
 
+	// 解压缩响应体（支持 gzip, brotli, deflate）
+	body, err := service.DecompressResponseBody(resp)
+	if err != nil {
+		logger.LogError(c, "decompress response body error: "+err.Error())
+		return
+	}
+
 	// 确保响应体总是被关闭
 	defer func() {
-		if resp.Body != nil {
-			resp.Body.Close()
+		if body != nil {
+			body.Close()
 		}
 	}()
 
@@ -51,7 +59,7 @@ func StreamScannerHandler(c *gin.Context, resp *http.Response, info *relaycommon
 
 	var (
 		stopChan   = make(chan bool, 3) // 增加缓冲区避免阻塞
-		scanner    = bufio.NewScanner(resp.Body)
+		scanner    = bufio.NewScanner(body)
 		ticker     = time.NewTicker(streamingTimeout)
 		pingTicker *time.Ticker
 		writeMutex sync.Mutex     // Mutex to protect concurrent writes

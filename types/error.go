@@ -357,19 +357,6 @@ func IsRecordErrorLog(e *NewAPIError) bool {
 		return false
 	}
 	if e.recordErrorLog == nil {
-		// 检查是否是 JSON 解析失败且包含 ANSI 转义字符的错误
-		// 这种错误通常是上游在切换账号等操作时返回了非 JSON 内容（如终端颜色输出）
-		// 只记录日志用于追溯，不插入数据库
-		if e.errorCode == ErrorCodeBadResponseBody {
-			errMsg := e.Error()
-			if strings.Contains(errMsg, "invalid character") &&
-				(strings.Contains(errMsg, "\\x1b") || strings.Contains(errMsg, "\x1b")) {
-				// 输出日志用于追溯，使用 %q 格式化以显示转义字符
-				common.SysLog(fmt.Sprintf("[ANSI Error Skip DB] error_code=%s, error_msg=%q, relay_error=%+v",
-					e.errorCode, errMsg, e.RelayError))
-				return false
-			}
-		}
 		// default to true if not set
 		return true
 	}

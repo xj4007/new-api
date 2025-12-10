@@ -2,6 +2,8 @@ package service
 
 import (
 	"bytes"
+	"compress/flate"
+	"compress/gzip"
 	"fmt"
 	"io"
 	"net/http"
@@ -9,6 +11,7 @@ import (
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/logger"
 
+	"github.com/andybalholm/brotli"
 	"github.com/gin-gonic/gin"
 )
 
@@ -57,4 +60,63 @@ func IOCopyBytesGracefully(c *gin.Context, src *http.Response, data []byte) {
 	if err != nil {
 		logger.LogError(c, fmt.Sprintf("failed to copy response body: %s", err.Error()))
 	}
+}
+
+// DecompressResponseBody wraps the response body with appropriate decompressor
+// based on Content-Encoding header. Supports gzip, brotli (br), and deflate.
+// Returns the original body if no compression or unknown encoding.
+func DecompressResponseBody(resp *http.Response) (io.ReadCloser, error) {
+	if resp == nil || resp.Body == nil {
+		return nil, nil
+	}
+
+	encoding := resp.Header.Get("Content-Encoding")
+	common.SysLog(fmt.Sprintf("[DecompressResponseBody] Content-Encoding: %s, StatusCode: %d", encoding, resp.StatusCode))
+
+	switch encoding {
+	case "gzip":
+		common.SysLog("[DecompressResponseBody] Using gzip decompression")
+		return gzip.NewReader(resp.Body)
+	case "br":
+		common.SysLog("[DecompressResponseBody] Using brotli decompression")
+		return io.NopCloser(brotli.NewReader(resp.Body)), nil
+	case "deflate":
+		common.SysLog("[DecompressResponseBody] Using deflate decompression")
+		return flate.NewReader(resp.Body), nil
+	default:
+		common.SysLog(fmt.Sprintf("[DecompressResponseBody] No decompression needed (encoding: %s)", encoding))
+		return resp.Body, nil
+	}
+}
+
+// ReadResponseBody reads the entire response body with automatic decompression
+// based on Content-Encoding header. Supports gzip, brotli (br), and deflate.
+func ReadResponseBody(resp *http.Response) ([]byte, error) {
+	reader, err := DecompressResponseBody(resp)
+	if err != nil {
+		common.SysError(fmt.Sprintf("[ReadResponseBody] DecompressResponseBody error: %v", err))
+		return nil, err
+	}
+	if reader == nil {
+		return nil, nil
+	}
+	defer reader.Close()
+
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		common.SysError(fmt.Sprintf("[ReadResponseBody] io.ReadAll error: %v", err))
+		return nil, err
+	}
+
+	// 打印前100个字节用于调试
+	if len(data) > 0 {
+		previewLen := len(data)
+		if previewLen > 100 {
+			previewLen = 100
+		}
+		common.SysLog(fmt.Sprintf("[ReadResponseBody] Read %d bytes, first %d bytes (hex): %x", len(data), previewLen, data[:previewLen]))
+		common.SysLog(fmt.Sprintf("[ReadResponseBody] First %d bytes (string): %s", previewLen, string(data[:previewLen])))
+	}
+
+	return data, nil
 }

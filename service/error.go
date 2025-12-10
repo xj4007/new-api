@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -84,7 +83,7 @@ func ClaudeErrorWrapperLocal(err error, code string, statusCode int) *dto.Claude
 func RelayErrorHandler(ctx context.Context, resp *http.Response, showBodyWhenFail bool) (newApiErr *types.NewAPIError) {
 	newApiErr = types.InitOpenAIError(types.ErrorCodeBadResponseStatusCode, resp.StatusCode)
 
-	responseBody, err := io.ReadAll(resp.Body)
+	responseBody, err := ReadResponseBody(resp)
 	if err != nil {
 		return
 	}
