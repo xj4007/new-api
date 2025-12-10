@@ -682,15 +682,8 @@ func HandleStreamFinalResponse(c *gin.Context, info *relaycommon.RelayInfo, clau
 	if requestMode == RequestModeCompletion {
 		claudeInfo.Usage = service.ResponseText2Usage(c, claudeInfo.ResponseText.String(), info.UpstreamModelName, info.GetEstimatePromptTokens())
 	} else {
-		if claudeInfo.Usage.PromptTokens == 0 {
-			//上游出错
-		}
-		if claudeInfo.Usage.CompletionTokens == 0 || !claudeInfo.Done {
-			if common.DebugEnabled {
-				common.SysLog("claude response usage is not complete, maybe upstream error")
-			}
-			claudeInfo.Usage = service.ResponseText2Usage(c, claudeInfo.ResponseText.String(), info.UpstreamModelName, claudeInfo.Usage.PromptTokens)
-		}
+		// 对于流式消息模式，是否完整结束由 ClaudeStreamHandler 根据 claudeInfo.Done 判定。
+		// 这里不再在结束阶段兜底“估算用量”，避免上游流异常时被当成成功消费。
 	}
 
 	if info.RelayFormat == types.RelayFormatClaude {
@@ -725,6 +718,27 @@ func ClaudeStreamHandler(c *gin.Context, resp *http.Response, info *relaycommon.
 	})
 	if err != nil {
 		return nil, err
+	}
+
+	// 流式场景下，如果没有收到终止块（如 Anthropic 未返回最终 usage / message_delta），视为上游异常，按失败处理不扣费。
+	if info.IsStream && requestMode == RequestModeMessage {
+		if !claudeInfo.Done {
+			message := "upstream stream finished without terminal chunk"
+			if common.DebugEnabled {
+				common.SysLog("ClaudeStreamHandler: " + message)
+			}
+			// Claude 原生格式下，额外向下游发送一条 error 事件，方便前端感知失败。
+			if info.RelayFormat == types.RelayFormatClaude {
+				helper.SendClaudeErrorResponse(c, "upstream_error", message)
+			}
+			// 构造上游响应异常错误，使用 502，并禁止重试（避免在已经输出部分流结果后再次重试）。
+			return nil, types.NewErrorWithStatusCode(
+				fmt.Errorf(message),
+				types.ErrorCodeBadResponse,
+				http.StatusBadGateway,
+				types.ErrOptionWithSkipRetry(),
+			)
+		}
 	}
 
 	HandleStreamFinalResponse(c, info, claudeInfo, requestMode)
