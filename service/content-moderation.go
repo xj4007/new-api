@@ -5,22 +5,24 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"github.com/QuantumNous/new-api/logger"
-	"github.com/QuantumNous/new-api/setting"
 	"regexp"
 	"strings"
+	"time"
+
+	"github.com/QuantumNous/new-api/logger"
+	"github.com/QuantumNous/new-api/setting"
 
 	"github.com/gin-gonic/gin"
 )
 
 // ModerationRequest 审核请求结构
 type ModerationRequest struct {
-	Model             string                     `json:"model"`
-	MaxTokens         int                        `json:"max_tokens,omitempty"`
-	TopP              float64                    `json:"top_p,omitempty"`
-	Messages          []ModerationMessage        `json:"messages"`
-	ResponseFormat    *ModerationResponseFormat  `json:"response_format,omitempty"`
-	EnableThinking    bool                       `json:"enable_thinking,omitempty"`
+	Model          string                    `json:"model"`
+	MaxTokens      int                       `json:"max_tokens,omitempty"`
+	TopP           float64                   `json:"top_p,omitempty"`
+	Messages       []ModerationMessage       `json:"messages"`
+	ResponseFormat *ModerationResponseFormat `json:"response_format,omitempty"`
+	EnableThinking bool                      `json:"enable_thinking,omitempty"`
 }
 
 // ModerationMessage 审核消息结构
@@ -36,40 +38,77 @@ type ModerationResponseFormat struct {
 
 // ModerationResponse 审核响应结构
 type ModerationResponse struct {
-	ID      string `json:"id"`
-	Object  string `json:"object"`
-	Created int64  `json:"created"`
-	Model   string `json:"model"`
+	ID      string             `json:"id"`
+	Object  string             `json:"object"`
+	Created int64              `json:"created"`
+	Model   string             `json:"model"`
 	Choices []ModerationChoice `json:"choices"`
 }
 
 // ModerationChoice 审核选择结构
 type ModerationChoice struct {
-	Index   int              `json:"index"`
+	Index   int               `json:"index"`
 	Message ModerationMessage `json:"message"`
 }
 
 // ModerationResult 审核结果
 type ModerationResult struct {
-	IsViolation     bool     `json:"status"`
-	SensitiveWords  []string `json:"sensitiveWords,omitempty"`
+	IsViolation    bool     `json:"status"`
+	SensitiveWords []string `json:"sensitiveWords,omitempty"`
 }
 
-// CheckContentModeration 检查内容是否违规
+// CheckContentModeration 使用默认配置检查内容是否违规
 func CheckContentModeration(c *gin.Context, userContent string) (*ModerationResult, error) {
-	if !setting.ShouldCheckContentModeration() {
-		return &ModerationResult{IsViolation: false}, nil
+	return CheckContentModerationWithModel(c, userContent, setting.ModerationModel, setting.ModerationApiKey, setting.ModerationApiBaseUrl)
+}
+
+// CheckContentModerationWithRetry 带重试机制的内容审核
+// 如果连续失败达到最大重试次数，根据配置决定是放行还是降级
+func CheckContentModerationWithRetry(c *gin.Context, userContent, model, apiKey, apiBaseUrl string) (*ModerationResult, error) {
+	maxRetries := setting.ModerationMaxRetries
+	if maxRetries <= 0 {
+		maxRetries = 3
 	}
 
+	var lastErr error
+	for i := 0; i < maxRetries; i++ {
+		if i > 0 {
+			logger.LogWarn(c, fmt.Sprintf("content moderation: retry %d/%d", i+1, maxRetries))
+			// 重试前等待一小段时间
+			time.Sleep(time.Duration(i*500) * time.Millisecond)
+		}
+
+		result, err := CheckContentModerationWithModel(c, userContent, model, apiKey, apiBaseUrl)
+		if err == nil {
+			return result, nil
+		}
+		lastErr = err
+	}
+
+	// 所有重试都失败了
+	logger.LogError(c, fmt.Sprintf("content moderation: all %d retries failed, last error: %v", maxRetries, lastErr))
+	return nil, lastErr
+}
+
+// CheckContentModerationWithModel 使用指定模型检查内容是否违规
+func CheckContentModerationWithModel(c *gin.Context, userContent, model, apiKey, apiBaseUrl string) (*ModerationResult, error) {
 	if userContent == "" {
 		return &ModerationResult{IsViolation: false}, nil
 	}
 
+	if model == "" || apiKey == "" {
+		return &ModerationResult{IsViolation: false}, fmt.Errorf("model or apiKey is empty")
+	}
+
+	if apiBaseUrl == "" {
+		apiBaseUrl = setting.ModerationApiBaseUrl
+	}
+
 	// 构建审核请求
 	moderationReq := ModerationRequest{
-		Model:         setting.ModerationModel,
-		MaxTokens:     setting.ModerationMaxTokens,
-		TopP:          0.7,
+		Model:          model,
+		MaxTokens:      setting.ModerationMaxTokens,
+		TopP:           0.7,
 		EnableThinking: false,
 		Messages: []ModerationMessage{
 			{
@@ -87,7 +126,7 @@ func CheckContentModeration(c *gin.Context, userContent string) (*ModerationResu
 	}
 
 	// 发送API请求
-	apiUrl := fmt.Sprintf("%s/v1/chat/completions", strings.TrimRight(setting.ModerationApiBaseUrl, "/"))
+	apiUrl := fmt.Sprintf("%s/v1/chat/completions", strings.TrimRight(apiBaseUrl, "/"))
 
 	jsonData, err := json.Marshal(moderationReq)
 	if err != nil {
@@ -101,7 +140,7 @@ func CheckContentModeration(c *gin.Context, userContent string) (*ModerationResu
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", "Bearer "+setting.ModerationApiKey)
+	req.Header.Set("Authorization", "Bearer "+apiKey)
 	req.Header.Set("Content-Type", "application/json")
 
 	// 设置超时
@@ -138,7 +177,7 @@ func CheckContentModeration(c *gin.Context, userContent string) (*ModerationResu
 	assistantContent = strings.TrimSpace(assistantContent)
 
 	// 记录原始API响应用于调试
-	logger.LogInfo(c, fmt.Sprintf("content moderation: API raw response: %s", assistantContent))
+	logger.LogInfo(c, fmt.Sprintf("content moderation [%s]: API raw response: %s", model, assistantContent))
 
 	// 尝试解析JSON格式的响应
 	var result ModerationResult
@@ -147,8 +186,10 @@ func CheckContentModeration(c *gin.Context, userContent string) (*ModerationResu
 		logger.LogWarn(c, fmt.Sprintf("content moderation: failed to parse JSON response: %v, raw content: %s", err, assistantContent))
 
 		// 检查是否违规
-		if strings.Contains(strings.ToLower(assistantContent), "\"status\":\"true\"") ||
-		   strings.Contains(strings.ToLower(assistantContent), "\"status\": \"true\"") {
+		if strings.Contains(strings.ToLower(assistantContent), "\"status\":true") ||
+			strings.Contains(strings.ToLower(assistantContent), "\"status\": true") ||
+			strings.Contains(strings.ToLower(assistantContent), "\"status\":\"true\"") ||
+			strings.Contains(strings.ToLower(assistantContent), "\"status\": \"true\"") {
 			result.IsViolation = true
 
 			// 尝试提取 sensitiveWords 数组
@@ -167,37 +208,99 @@ func CheckContentModeration(c *gin.Context, userContent string) (*ModerationResu
 
 	// 记录审核结果
 	if result.IsViolation {
-		logger.LogWarn(c, fmt.Sprintf("content moderation: violation detected - sensitive words: %v", result.SensitiveWords))
+		logger.LogWarn(c, fmt.Sprintf("content moderation [%s]: violation detected - sensitive words: %v", model, result.SensitiveWords))
 	} else {
-		logger.LogInfo(c, "content moderation: content passed review")
+		logger.LogInfo(c, fmt.Sprintf("content moderation [%s]: content passed review", model))
 	}
 
 	return &result, nil
 }
 
-// CheckContentModerationWithFallback 带降级策略的内容审核
-func CheckContentModerationWithFallback(c *gin.Context, userContent string) (bool, []string) {
-	// 首先尝试AI审核
-	if setting.ShouldCheckContentModeration() {
-		result, err := CheckContentModeration(c, userContent)
-		if err == nil {
-			if result.IsViolation {
-				// AI检测到违规
-				if len(result.SensitiveWords) > 0 {
-					return true, result.SensitiveWords
-				} else {
-					return true, []string{"检测到不当内容"}
-				}
-			}
+// CheckContentModerationTwoPhase 二级审核机制
+// Phase 1: 使用默认模型快速检测（带重试）
+// Phase 2: 可选，如果配置了Pro模型，用于确认违规（不再用于"清除误报"）
+// 注意：Phase 1 检测到违规就直接阻止，不会被 Phase 2 "清除"
+func CheckContentModerationTwoPhase(c *gin.Context, userContent string) (bool, []string) {
+	if !setting.ShouldCheckContentModeration() {
+		return false, []string{}
+	}
+
+	// 记录待审核内容（用于调试，限制长度）
+	contentPreview := userContent
+	if len(contentPreview) > 200 {
+		contentPreview = contentPreview[:200] + "..."
+	}
+	logger.LogInfo(c, fmt.Sprintf("content moderation: checking content (preview): %s", contentPreview))
+
+	// Phase 1: 默认模型快速检测（带重试）
+	logger.LogInfo(c, "content moderation Phase 1: starting fast detection")
+	result, err := CheckContentModerationWithRetry(
+		c,
+		userContent,
+		setting.ModerationModel,
+		setting.ModerationApiKey,
+		setting.ModerationApiBaseUrl,
+	)
+	if err != nil {
+		// Phase 1 所有重试都失败了
+		logger.LogError(c, fmt.Sprintf("content moderation Phase 1: all retries failed: %v", err))
+
+		// 根据配置决定是放行还是降级到敏感词检测
+		if setting.ModerationFailOpen {
+			logger.LogWarn(c, "content moderation: fail-open mode, allowing request to pass")
 			return false, []string{}
-		} else {
-			// AI审核失败，记录错误但不阻断请求
-			logger.LogError(c, fmt.Sprintf("content moderation API failed, falling back to sensitive word check: %v", err))
+		}
+
+		// 降级到敏感词检测
+		logger.LogWarn(c, "content moderation: fail-close mode, falling back to sensitive word check")
+		return CheckSensitiveText(userContent)
+	}
+
+	if !result.IsViolation {
+		// Phase 1 通过，直接放行
+		logger.LogInfo(c, "content moderation Phase 1: passed")
+		return false, []string{}
+	}
+
+	// Phase 1 检测到违规，记录详细信息
+	logger.LogWarn(c, fmt.Sprintf("content moderation Phase 1: VIOLATION DETECTED! sensitive words: %v", result.SensitiveWords))
+	logger.LogWarn(c, fmt.Sprintf("content moderation: blocked content (preview): %s", contentPreview))
+
+	// 直接返回违规结果，不再让 Phase 2 "清除"
+	// Phase 2 仅用于提供更准确的敏感词（可选，不影响阻止决定）
+	sensitiveWords := result.SensitiveWords
+	if len(sensitiveWords) == 0 {
+		sensitiveWords = []string{"检测到不当内容"}
+	}
+
+	// 如果配置了Pro模型，可以用来获取更准确的敏感词（但不会改变阻止决定）
+	if setting.HasProModel() {
+		logger.LogInfo(c, "content moderation Phase 2: using Pro model for detailed analysis (will not override block decision)")
+		proResult, err := CheckContentModerationWithRetry(
+			c,
+			userContent,
+			setting.ModerationProModel,
+			setting.ModerationProApiKey,
+			setting.GetProApiBaseUrl(),
+		)
+		if err == nil && proResult.IsViolation && len(proResult.SensitiveWords) > 0 {
+			// Pro模型也检测到违规，使用其更准确的敏感词
+			logger.LogWarn(c, fmt.Sprintf("content moderation Phase 2: confirmed with sensitive words: %v", proResult.SensitiveWords))
+			sensitiveWords = proResult.SensitiveWords
+		} else if err == nil && !proResult.IsViolation {
+			// Pro模型认为没问题，但我们仍然阻止（记录日志用于分析）
+			logger.LogWarn(c, "content moderation Phase 2: Pro model disagreed, but blocking anyway (Phase 1 detected violation)")
 		}
 	}
 
-	// 降级到敏感词检测
-	return CheckSensitiveText(userContent)
+	// 返回违规结果
+	return true, sensitiveWords
+}
+
+// CheckContentModerationWithFallback 带降级策略的内容审核（向后兼容）
+func CheckContentModerationWithFallback(c *gin.Context, userContent string) (bool, []string) {
+	// 使用二级审核机制
+	return CheckContentModerationTwoPhase(c, userContent)
 }
 
 // extractSensitiveWordsFromText 从文本中提取敏感词数组
