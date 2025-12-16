@@ -782,7 +782,57 @@ func HandleClaudeResponseData(c *gin.Context, info *relaycommon.RelayInfo, claud
 		c.Set("claude_web_search_requests", claudeResponse.Usage.ServerToolUse.WebSearchRequests)
 	}
 
-	service.IOCopyBytesGracefully(c, httpResp, responseData)
+	// 尝试写入响应到客户端
+	writeErr := service.IOCopyBytesGracefully(c, httpResp, responseData)
+
+	// 如果写入失败，尝试缓存响应（仅在客户端断开且响应有效时）
+	if writeErr != nil {
+		// 检查客户端是否断开
+		select {
+		case <-c.Request.Context().Done():
+			// 客户端已断开，尝试缓存响应
+			if cacheKey, exists := c.Get("response_cache_key"); exists {
+				cacheKeyStr, ok := cacheKey.(string)
+				if ok && cacheKeyStr != "" {
+					// 准备缓存数据
+					headers := make(map[string]string)
+					if httpResp != nil {
+						for k, v := range httpResp.Header {
+							if len(v) > 0 {
+								headers[k] = v[0]
+							}
+						}
+					}
+
+					// 序列化 usage
+					var usageJSON json.RawMessage
+					if claudeInfo.Usage != nil {
+						usageData, _ := json.Marshal(claudeInfo.Usage)
+						usageJSON = usageData
+					}
+
+					cachedResp := &service.CachedResponse{
+						StatusCode: http.StatusOK,
+						Headers:    headers,
+						Body:       responseData,
+						Usage:      usageJSON,
+					}
+
+					if httpResp != nil {
+						cachedResp.StatusCode = httpResp.StatusCode
+					}
+
+					// 缓存响应
+					if err := service.CacheResponse(cacheKeyStr, cachedResp, service.DefaultCacheTTL); err != nil {
+						common.SysLog(fmt.Sprintf("[ClaudeHandler] Failed to cache response: %v", err))
+					}
+				}
+			}
+		default:
+			// 其他写入错误，不缓存
+		}
+	}
+
 	return nil
 }
 

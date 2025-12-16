@@ -74,8 +74,11 @@ func SetRelayRouter(router *gin.Engine) {
 	{
 		//http router
 		httpRouter := relayV1Router.Group("")
-		httpRouter.Use(middleware.ContentModerationMiddleware())
+		// 注意：中间件顺序很重要！
+		// 1. Distribute() 先执行，确定目标渠道ID
+		// 2. ContentModerationMiddleware() 后执行，可以根据渠道ID决定是否审核
 		httpRouter.Use(middleware.Distribute())
+		httpRouter.Use(middleware.ContentModerationMiddleware())
 
 		// claude related routes
 		httpRouter.POST("/messages", func(c *gin.Context) {

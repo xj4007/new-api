@@ -135,6 +135,49 @@ func ClaudeHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *typ
 		requestBody = bytes.NewBuffer(jsonData)
 	}
 
+	// ========== 响应缓存检查（仅非流式请求）==========
+	// 只对非流式请求检查和使用缓存
+	if !info.IsStream && common.RedisEnabled {
+		// 获取请求体用于生成缓存键
+		var requestBodyBytes []byte
+		if buf, ok := requestBody.(*bytes.Buffer); ok {
+			requestBodyBytes = buf.Bytes()
+			// 重新创建 buffer，因为读取后需要恢复
+			requestBody = bytes.NewBuffer(requestBodyBytes)
+		}
+
+		if len(requestBodyBytes) > 0 {
+			// 提取 sessionHash（从 metadata.user_id）
+			sessionHash := service.ExtractSessionIdFromClaudeRequest(requestBodyBytes)
+
+			// 生成请求体哈希
+			requestBodyHash := service.GenerateRequestBodyHash(requestBodyBytes)
+
+			// 生成缓存键
+			cacheKey := service.GenerateCacheKey(sessionHash, requestBodyHash)
+
+			if cacheKey != "" {
+				// 存储 cacheKey 到 context，供后续写入失败时使用
+				c.Set("response_cache_key", cacheKey)
+
+				// 检查缓存命中
+				cached, err := service.GetCachedResponse(cacheKey)
+				if err == nil && cached != nil {
+					// 🎯 缓存命中！直接返回缓存内容，不扣费
+					common.SysLog(fmt.Sprintf("[ResponseCache] 🎯 Cache HIT | Key: %s | SessionHash: %s",
+						service.TruncateCacheKey(cacheKey), service.TruncateSessionId(sessionHash)))
+
+					// 返回缓存的响应给客户端
+					returnCachedResponseToClient(c, cached)
+
+					// 直接返回，不进行后续请求和扣费
+					return nil
+				}
+			}
+		}
+	}
+	// ========== 响应缓存检查结束 ==========
+
 	statusCodeMappingStr := c.GetString("status_code_mapping")
 	var httpResp *http.Response
 	resp, err := adaptor.DoRequest(c, info, requestBody)
@@ -163,4 +206,28 @@ func ClaudeHelper(c *gin.Context, info *relaycommon.RelayInfo) (newAPIError *typ
 
 	service.PostClaudeConsumeQuota(c, info, usage.(*dto.Usage))
 	return nil
+}
+
+// returnCachedResponseToClient 将缓存的响应返回给客户端
+func returnCachedResponseToClient(c *gin.Context, cached *service.CachedResponse) {
+	// 设置响应头
+	for k, v := range cached.Headers {
+		// 跳过 Content-Length，因为我们会重新设置
+		if strings.ToLower(k) == "content-length" {
+			continue
+		}
+		c.Writer.Header().Set(k, v)
+	}
+
+	// 设置 Content-Length
+	c.Writer.Header().Set("Content-Length", fmt.Sprintf("%d", len(cached.Body)))
+
+	// 写入状态码
+	c.Writer.WriteHeader(cached.StatusCode)
+
+	// 写入响应体
+	_, err := c.Writer.Write(cached.Body)
+	if err != nil {
+		common.SysLog(fmt.Sprintf("[ResponseCache] Failed to write cached response: %v", err))
+	}
 }

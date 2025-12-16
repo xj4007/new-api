@@ -84,42 +84,41 @@ HTML格式要求总结
   }
 </style>
 
-<div style="max-width: 1200px; margin: 0 auto; padding: 60px 20px;">
+<div style="max-width: 1200px; margin: 0 auto; padding: 30px 20px;">
 
-<div style="text-align: center; margin-bottom: 60px;">
-<div class="logo-container" style="display: inline-block; margin-bottom: 24px;">
-<div class="logo-glow" style="background: linear-gradient(135deg, #ff6b35, #ff8e53); padding: 10px; border-radius: 28px; display: inline-block; position: relative;">
-<img src="https://new-api.xhm.gd.cn/logo.png" alt="Logo" style="width: 88px; height: 88px; border-radius: 20px; display: block;" />
-<div style="position: absolute; top: -5px; right: -5px; background: #34c759; width: 20px; height: 20px; border-radius: 10px; border: 3px solid white;"></div>
+<div style="text-align: center; margin-bottom: 30px;">
+<div class="logo-container" style="display: inline-block; margin-bottom: 15px;">
+<div class="logo-glow" style="background: linear-gradient(135deg, #ff6b35, #ff8e53); padding: 8px; border-radius: 20px; display: inline-block; position: relative;">
+<img src="https://new-api.xhm.gd.cn/logo.png" alt="Logo" style="width: 60px; height: 60px; border-radius: 14px; display: block;" />
+<div style="position: absolute; top: -3px; right: -3px; background: #34c759; width: 16px; height: 16px; border-radius: 8px; border: 2px solid white;"></div>
 </div>
 </div>
-<h1 style="font-size: 3rem; margin: 20px 0 10px 0; color: #1d1d1f;">小红帽 <span style="color: #ff6b35;">AICoding</span></h1>
-<p style="font-size: 1.3rem; color: #86868b;">让开发者使用更具性价比的方式开发</p>
+<h1 style="font-size: 2rem; margin: 10px 0 5px 0; color: #1d1d1f;">小红帽 <span style="color: #ff6b35;">AICoding</span></h1>
+<p style="font-size: 1rem; color: #86868b;">让开发者使用更具性价比的方式开发</p>
 </div>
 
-<div class="orange-box">
-<h2 style="font-size: 2.5rem; text-align: center; margin: 0 0 40px 0;">💎 透明计费模式</h2>
+<div class="orange-box" style="padding: 25px; margin-bottom: 20px;">
+<h2 style="font-size: 1.5rem; text-align: center; margin: 0 0 20px 0;">💎 透明计费模式</h2>
 
-<table width="100%" cellpadding="0" cellspacing="20">
+<table width="100%" cellpadding="0" cellspacing="10">
 <tr>
 <td width="50%">
-<div class="white-card">
-<div style="font-size: 2.5rem; margin-bottom: 15px;">💰</div>
-<h3 style="font-size: 1.3rem; margin: 0 0 8px 0; color: #1d1d1f;">统一汇率</h3>
-<p style="color: #86868b; margin: 0 0 20px 0;">按量付费，告别包月浪费</p>
-<div style="background: #fff5f0; color: #ff6b35; padding: 20px; border-radius: 12px; text-align: center; font-weight: bold; font-size: 1.2rem;">
+<div class="white-card" style="padding: 20px; margin: 5px;">
+<div style="font-size: 1.8rem; margin-bottom: 8px;">💰</div>
+<h3 style="font-size: 1.1rem; margin: 0 0 5px 0; color: #1d1d1f;">统一汇率</h3>
+<p style="color: #86868b; margin: 0 0 12px 0; font-size: 0.85rem;">按量付费，告别包月浪费</p>
+<div style="background: #fff5f0; color: #ff6b35; padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; font-size: 1rem;">
 1 人民币 = 1 美元额度
 </div>
 </div>
 </td>
 <td width="50%">
-<div class="white-card">
-<div style="font-size: 2.5rem; margin-bottom: 15px;">🎯</div>
-<h3 style="font-size: 1.3rem; margin: 0 0 8px 0; color: #1d1d1f;">超值倍率</h3>
-<p style="color: #86868b; margin: 0 0 20px 0;">两重优惠，省上加省</p>
-<div style="background: white; padding: 15px; border-radius: 12px; border: 1px solid #eee;">
-<p style="margin: 0 0 10px 0; padding-bottom: 10px; border-bottom: 1px solid #f5f5f5;">基础倍率 <strong style="color: #34c759; float: right;">0.5倍</strong></p>
-<p style="margin: 0;">缓存倍率 <strong style="color: #34c759; float: right;">0.1倍</strong></p>
+<div class="white-card" style="padding: 20px; margin: 5px;">
+<div style="font-size: 1.8rem; margin-bottom: 8px;">🎯</div>
+<h3 style="font-size: 1.1rem; margin: 0 0 5px 0; color: #1d1d1f;">渠道选择</h3>
+<p style="color: #86868b; margin: 0 0 12px 0; font-size: 0.85rem;">三大渠道，总有一款适合你</p>
+<div style="background: #f5f5f7; padding: 10px; border-radius: 8px; border: 1px solid #eee;">
+<p style="margin: 0; color: #1d1d1f; font-size: 0.9rem;">查看下方渠道详情 <strong style="color: #34c759; float: right;">↓</strong></p>
 </div>
 </div>
 </td>
@@ -128,105 +127,200 @@ HTML格式要求总结
 
 </div>
 
-<div class="gray-bg">
-<h3 style="font-size: 2rem; text-align: center; margin: 0 0 40px 0; color: #1d1d1f;">📊 实际案例对比</h3>
+<div class="gray-bg" style="padding: 25px 20px; margin-bottom: 20px;">
+<h3 style="font-size: 1.3rem; text-align: center; margin: 0 0 20px 0; color: #1d1d1f;">🚀 四大分组任你选</h3>
 
-<div style="background: white; padding: 40px; border-radius: 20px; margin-bottom: 20px;">
-<table width="100%" cellpadding="20">
-<tr>
-<td width="40%" style="text-align: center;">
-<p style="color: #86868b; margin: 0 0 10px 0;">官方定价</p>
-<p style="font-size: 2.5rem; font-weight: bold; color: #1d1d1f; margin: 0;">$5 <span style="font-size: 1rem; color: #86868b;">美元</span></p>
-</td>
-<td width="20%" style="text-align: center; font-size: 2rem; color: #ff6b35;">→</td>
-<td width="40%" style="text-align: center;">
-<p style="color: #86868b; margin: 0 0 10px 0;">您实际支付</p>
-<p style="font-size: 2.5rem; font-weight: bold; color: #34c759; margin: 0;">￥1 <span style="font-size: 1rem; color: #86868b;">人民币</span></p>
-</td>
-</tr>
-</table>
-
-<div style="background: #fff5f0; padding: 25px; border-radius: 16px; border-left: 4px solid #ff6b35; margin-top: 20px;">
-<h4 style="color: #ff6b35; margin: 0 0 10px 0;">💡 智能缓存让您更省钱</h4>
-<p style="color: #666; margin: 0; line-height: 1.6;">当您重复使用相同的提示词时，系统自动启用缓存机制，缓存内容仅收取10%费用。例如：同样的代码分析任务，第二次调用可能只需 ￥0.1-0.3 即可完成。</p>
-</div>
-</div>
-
-<div style="background: white; padding: 30px; border-radius: 20px; border: 2px solid #ff6b35;">
-<h4 style="margin: 0 0 20px 0; color: #1d1d1f;">🔍 费用计算原理</h4>
-<p style="background: #ff6b35; color: white; padding: 8px 15px; border-radius: 8px; display: inline-block; margin: 0 0 8px 0; font-weight: bold;">步骤1</p>
-<p style="color: #666; margin: 0 0 15px 20px;">官方原价：输入 $15/百万字符，输出 $75/百万字符</p>
-<p style="background: #ff6b35; color: white; padding: 8px 15px; border-radius: 8px; display: inline-block; margin: 0 0 8px 0; font-weight: bold;">步骤2</p>
-<p style="color: #666; margin: 0 0 15px 20px;">应用当前倍率 0.5：所有费用打5折 💸</p>
-<p style="background: #ff6b35; color: white; padding: 8px 15px; border-radius: 8px; display: inline-block; margin: 0 0 8px 0; font-weight: bold;">步骤3</p>
-<p style="color: #666; margin: 0 0 15px 20px;">缓存优化：已缓存内容仅收10%（48,595字符缓存仅需 $0.07）</p>
-<p style="background: #34c759; color: white; padding: 8px 15px; border-radius: 8px; display: inline-block; margin: 0 0 8px 0; font-weight: bold;">结果</p>
-<p style="color: #1d1d1f; margin: 0 0 0 20px;"><strong style="color: #34c759; font-size: 1.2rem;">最终仅需支付 ￥0.11</strong> <span style="color: #86868b;">（原价需 $0.38）</span></p>
-</div>
-
-</div>
-
-<table width="100%" cellpadding="0" cellspacing="20" style="margin-bottom: 40px;">
+<table width="100%" cellpadding="0" cellspacing="8">
 <tr>
 <td width="25%">
-<div class="white-card" style="text-align: center;">
-<div style="font-size: 2.5rem; margin-bottom: 12px;">⚡</div>
-<h4 style="margin: 0 0 8px 0; font-size: 1.1rem;">极速响应</h4>
-<p style="margin: 0; color: #86868b; font-size: 0.9rem;">毫秒级延迟<br>99.9% 可用性</p>
+<div style="background: white; padding: 15px; border-radius: 12px; border: 2px solid #ff6b35; text-align: center;">
+<div style="font-size: 1.8rem; margin-bottom: 6px;">👑</div>
+<h4 style="color: #ff6b35; margin: 0 0 6px 0; font-size: 1rem;">纯max号池</h4>
+<p style="color: #666; margin: 0; line-height: 1.4; font-size: 0.8rem;">
+<strong style="color: #ff6b35;">0.65倍率</strong><br>
+<strong>200K 有缓存</strong><br>
+额度有限尽量保障稳定QAQ<br>
+<span style="background: #fff5f0; padding: 3px 8px; border-radius: 5px; display: inline-block; margin-top: 6px; font-size: 0.75rem;">💎 稳定至上</span>
+</p>
 </div>
 </td>
 <td width="25%">
-<div class="white-card" style="text-align: center;">
-<div style="font-size: 2.5rem; margin-bottom: 12px;">🔒</div>
-<h4 style="margin: 0 0 8px 0; font-size: 1.1rem;">企业级安全</h4>
-<p style="margin: 0; color: #86868b; font-size: 0.9rem;">端到端加密<br>ISO认证</p>
+<div style="background: white; padding: 15px; border-radius: 12px; border: 2px solid #34c759; text-align: center;">
+<div style="font-size: 1.8rem; margin-bottom: 6px;">⭐</div>
+<h4 style="color: #34c759; margin: 0 0 6px 0; font-size: 1rem;">多渠道号池 🔥</h4>
+<strong style="color: #34c759;">0.45倍率</strong><br>
+<p style="color: #666; margin: 0; line-height: 1.4; font-size: 0.8rem;">
+<strong>200K 有缓存</strong><br>
+<strong style="color: #34c759;">SLA 99.99%</strong><br>
+性价比之王！<br>
+<span style="background: #e8f5e9; padding: 3px 8px; border-radius: 5px; display: inline-block; margin-top: 6px; font-size: 0.75rem;">🎯 站长推荐</span>
+</p>
 </div>
 </td>
 <td width="25%">
-<div class="white-card" style="text-align: center;">
-<div style="font-size: 2.5rem; margin-bottom: 12px;">🎁</div>
-<h4 style="margin: 0 0 8px 0; font-size: 1.1rem;">新人福利</h4>
-<p style="margin: 0; color: #86868b; font-size: 0.9rem;">注册送 $10<br>立即开始</p>
+<div style="background: white; padding: 15px; border-radius: 12px; border: 2px solid #9c27b0; text-align: center;">
+<div style="font-size: 1.8rem; margin-bottom: 6px;">⚡</div>
+<h4 style="color: #9c27b0; margin: 0 0 6px 0; font-size: 1rem;">逆向渠道</h4>
+<p style="color: #666; margin: 0; line-height: 1.4; font-size: 0.8rem;">
+<strong style="color: #9c27b0;">0.25倍率</strong><br>
+<strong>128K</strong> <strong style="color:rgb(201, 34, 34);">无缓存</strong><br>
+短上下文<strong style="color: #9c27b0;">无敌</strong>！<br>
+<span style="background: #f3e5f5; padding: 3px 8px; border-radius: 5px; display: inline-block; margin-top: 6px; font-size: 0.75rem;">💰 超低价格</span>
+</p>
 </div>
 </td>
 <td width="25%">
-<div class="white-card" style="text-align: center;">
-<div style="font-size: 2.5rem; margin-bottom: 12px;">🏢</div>
-<h4 style="margin: 0 0 8px 0; font-size: 1.1rem;">企业服务</h4>
-<p style="margin: 0; color: #86868b; font-size: 0.9rem;">支持开票<br>专属客服</p>
+<div style="background: white; padding: 15px; border-radius: 12px; border: 2px solid #2196F3; text-align: center;">
+<div style="font-size: 1.8rem; margin-bottom: 6px;">🤖</div>
+<h4 style="color: #2196F3; margin: 0 0 6px 0; font-size: 1rem;">Codex渠道</h4>
+<p style="color: #666; margin: 0; line-height: 1.4; font-size: 0.8rem;">
+<strong style="color: #2196F3;">0.3倍率</strong><br>
+<strong>仅限Codex终端</strong><br>
+<span style="background: #E3F2FD; padding: 3px 8px; border-radius: 5px; display: inline-block; margin-top: 6px; font-size: 0.75rem;">🔒 OPENAI</span>
+</p>
 </div>
 </td>
 </tr>
 </table>
 
-<div style="background: white; padding: 50px 30px; border-radius: 24px; text-align: center; box-shadow: 0 8px 32px rgba(255,107,53,0.15);">
-<h3 style="font-size: 2rem; margin: 0 0 40px 0;">联系我们</h3>
-<table width="100%" cellpadding="0" cellspacing="30">
+<div style="background: #fff5f0; padding: 12px; border-radius: 10px; border-left: 3px solid #ff6b35; margin-top: 12px;">
+<h4 style="color: #ff6b35; margin: 0 0 6px 0; font-size: 0.9rem;">⚠️ 重要说明</h4>
+<p style="color: #666; margin: 0; line-height: 1.4; font-size: 0.8rem;">
+• <strong>Claude渠道</strong>（前三个）：仅限 Claude Code 终端或 VSCode 插件使用<br>
+• <strong>Codex渠道</strong>：仅限 Codex 终端或 VSCode 插件使用<br>
+• <strong>注意</strong>：禁止NSFW内容，站内有AI道德审查机制，请勿轻易尝试输入违规内容，违者封号退款处理
+</p>
+</div>
+
+</div>
+
+<table width="100%" cellpadding="0" cellspacing="10" style="margin-bottom: 20px;">
 <tr>
-<td width="33%" style="text-align: center;">
-<div style="background: linear-gradient(135deg, #ff6b35, #ff8e53); width: 64px; height: 64px; border-radius: 16px; margin: 0 auto 15px; line-height: 64px; font-size: 32px;">💬</div>
-<p style="margin: 0 0 8px 0; color: #86868b; font-size: 0.9rem;">客服QQ</p>
-<p style="margin: 0; font-weight: bold; color: #1d1d1f;">暂无</p>
-</td>
-<td width="33%" style="text-align: center;">
-<div style="background: linear-gradient(135deg, #ff6b35, #ff8e53); width: 64px; height: 64px; border-radius: 16px; margin: 0 auto 15px; line-height: 64px; font-size: 32px;">📱</div>
-<p style="margin: 0 0 12px 0; color: #86868b; font-size: 0.9rem;">微信客服</p>
-<div style="background: #f5f5f7; padding: 15px; border-radius: 16px; display: inline-block;">
-<img src="https://new-api.xhm.gd.cn/wechat.jpg" alt="微信" style="width: 150px; height: 150px; border-radius: 12px; display: block;" />
-<p style="margin: 10px 0 0 0; font-size: 0.8rem; color: #86868b;">扫码添加客服</p>
+<td width="50%">
+<div class="white-card" style="text-align: center; padding: 15px; margin: 5px;">
+<div style="font-size: 1.8rem; margin-bottom: 6px;">🎁</div>
+<h4 style="margin: 0 0 5px 0; font-size: 0.95rem;">新人福利</h4>
+<p style="margin: 0; color: #86868b; font-size: 0.8rem;">注册送 $3 | 邀请送 $5</p>
 </div>
 </td>
-<td width="33%" style="text-align: center;">
-<div style="background: linear-gradient(135deg, #ff6b35, #ff8e53); width: 64px; height: 64px; border-radius: 16px; margin: 0 auto 15px; line-height: 64px; font-size: 32px;">👥</div>
-<p style="margin: 0 0 12px 0; color: #86868b; font-size: 0.9rem;">技术交流群</p>
-<div style="background: #f5f5f7; padding: 15px; border-radius: 16px; display: inline-block;">
-<img src="https://new-api.xhm.gd.cn/group.jpg" alt="群" style="width: 150px; height: 150px; border-radius: 12px; display: block;" />
-<p style="margin: 10px 0 0 0; font-size: 0.8rem; color: #86868b;">扫码加入群聊</p>
+<td width="50%">
+<div class="white-card" style="text-align: center; padding: 15px; margin: 5px;">
+<div style="font-size: 1.8rem; margin-bottom: 6px;">🏢</div>
+<h4 style="margin: 0 0 5px 0; font-size: 0.95rem;">企业服务</h4>
+<p style="margin: 0; color: #86868b; font-size: 0.8rem;">支持开票</p>
 </div>
 </td>
 </tr>
 </table>
-<button style="margin-top: 40px; background: linear-gradient(135deg, #ff6b35, #ff8e53); color: white; border: none; padding: 18px 50px; border-radius: 100px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 6px 24px rgba(255,107,53,0.3);">立即开始使用 →</button>
+
+<div style="background: white; padding: 25px 20px; border-radius: 16px; text-align: center; box-shadow: 0 4px 16px rgba(255,107,53,0.1);">
+<h3 style="font-size: 1.3rem; margin: 0 0 20px 0;">联系我们</h3>
+<table width="100%" cellpadding="0" cellspacing="15">
+<tr>
+<td width="33%" style="text-align: center;">
+<div style="background: linear-gradient(135deg, #ff6b35, #ff8e53); width: 48px; height: 48px; border-radius: 12px; margin: 0 auto 10px; line-height: 48px; font-size: 24px;">💬</div>
+<p style="margin: 0 0 5px 0; color: #86868b; font-size: 0.85rem;">客服QQ</p>
+<p style="margin: 0; font-weight: bold; color: #1d1d1f; font-size: 0.9rem;">暂无</p>
+</td>
+<td width="33%" style="text-align: center;">
+<div style="background: linear-gradient(135deg, #ff6b35, #ff8e53); width: 48px; height: 48px; border-radius: 12px; margin: 0 auto 10px; line-height: 48px; font-size: 24px;">📱</div>
+<p style="margin: 0 0 8px 0; color: #86868b; font-size: 0.85rem;">微信客服</p>
+<div style="background: #f5f5f7; padding: 10px; border-radius: 12px; display: inline-block;">
+<img src="https://new-api.xhm.gd.cn/wechat.jpg" alt="微信" style="width: 100px; height: 100px; border-radius: 8px; display: block;" />
+<p style="margin: 6px 0 0 0; font-size: 0.75rem; color: #86868b;">扫码添加</p>
+</div>
+</td>
+<td width="33%" style="text-align: center;">
+<div style="background: linear-gradient(135deg, #ff6b35, #ff8e53); width: 48px; height: 48px; border-radius: 12px; margin: 0 auto 10px; line-height: 48px; font-size: 24px;">👥</div>
+<p style="margin: 0 0 8px 0; color: #86868b; font-size: 0.85rem;">技术交流群</p>
+<div style="background: #f5f5f7; padding: 10px; border-radius: 12px; display: inline-block;">
+<img src="https://new-api.xhm.gd.cn/group.jpg" alt="群" style="width: 100px; height: 100px; border-radius: 8px; display: block;" />
+<p style="margin: 6px 0 0 0; font-size: 0.75rem; color: #86868b;">扫码加入</p>
+</div>
+</td>
+</tr>
+</table>
+<button style="margin-top: 20px; background: linear-gradient(135deg, #ff6b35, #ff8e53); color: white; border: none; padding: 12px 35px; border-radius: 100px; font-size: 0.95rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 16px rgba(255,107,53,0.3);">立即开始使用 →</button>
+</div>
+
+<div style="background: #1d1d1f; padding: 30px 25px; border-radius: 20px; margin-top: 25px;">
+<h3 style="font-size: 1.3rem; text-align: center; margin: 0 0 8px 0; color: white;">📚 配置指南</h3>
+<p style="text-align: center; margin: 0 0 20px 0; color: #86868b; font-size: 0.85rem;">详细文档：<a href="https://ai.feishu.cn/wiki/QsHwwkrKziq0rjkzId0cXqO8nU9" style="color: #ff8e53;">https://ai.feishu.cn/wiki/QsHwwkrKziq0rjkzId0cXqO8nU9</a></p>
+
+<div style="background: #2d2d2f; padding: 20px; border-radius: 12px; margin-bottom: 15px;">
+<h4 style="color: #ff8e53; margin: 0 0 15px 0; font-size: 1rem;">🔧 Claude Code - 一次性配置</h4>
+
+<p style="color: #86868b; margin: 0 0 8px 0; font-size: 0.85rem;"><strong style="color: #34c759;">Linux / macOS:</strong></p>
+<div style="background: #1a1a1c; padding: 12px 15px; border-radius: 8px; margin-bottom: 12px; font-family: 'Courier New', monospace; font-size: 0.8rem; color: #e0e0e0; overflow-x: auto;">
+<code style="color: #ff8e53;">export</code> ANTHROPIC_BASE_URL=https://new-api.xhm.gd.cn<br>
+<code style="color: #ff8e53;">export</code> ANTHROPIC_AUTH_TOKEN=您的 API Key
+</div>
+
+<p style="color: #86868b; margin: 0 0 8px 0; font-size: 0.85rem;"><strong style="color: #2196F3;">Windows (PowerShell):</strong></p>
+<div style="background: #1a1a1c; padding: 12px 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.8rem; color: #e0e0e0; overflow-x: auto;">
+<code style="color: #ff8e53;">$env:</code>ANTHROPIC_BASE_URL=<code style="color: #34c759;">"https://new-api.xhm.gd.cn"</code><br>
+<code style="color: #ff8e53;">$env:</code>ANTHROPIC_AUTH_TOKEN=<code style="color: #34c759;">"您的 API Key"</code>
+</div>
+</div>
+
+<div style="background: #2d2d2f; padding: 20px; border-radius: 12px; margin-bottom: 15px;">
+<h4 style="color: #ff8e53; margin: 0 0 15px 0; font-size: 1rem;">💾 Claude Code - 持久化配置</h4>
+<p style="color: #86868b; margin: 0 0 8px 0; font-size: 0.85rem;">修改 <code style="background: #1a1a1c; padding: 2px 6px; border-radius: 4px; color: #e0e0e0;">~/.claude/settings.json</code>：</p>
+<div style="background: #1a1a1c; padding: 12px 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.8rem; color: #e0e0e0; overflow-x: auto;">
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<code style="color: #34c759;">"env"</code>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code style="color: #34c759;">"ANTHROPIC_BASE_URL"</code>: <code style="color: #ff8e53;">"https://new-api.xhm.gd.cn"</code>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code style="color: #34c759;">"ANTHROPIC_AUTH_TOKEN"</code>: <code style="color: #ff8e53;">"您的 API Key"</code><br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+}
+</div>
+</div>
+
+<div style="background: #2d2d2f; padding: 20px; border-radius: 12px;">
+<h4 style="color: #2196F3; margin: 0 0 15px 0; font-size: 1rem;">🤖 Codex - 配置指南</h4>
+
+<table width="100%" cellpadding="0" cellspacing="10">
+<tr>
+<td width="50%" style="vertical-align: top;">
+<p style="color: #86868b; margin: 0 0 8px 0; font-size: 0.85rem;"><strong style="color: #2196F3;">Windows 路径:</strong></p>
+<p style="color: #e0e0e0; margin: 0 0 10px 0; font-size: 0.75rem;">
+<code style="background: #1a1a1c; padding: 2px 6px; border-radius: 4px;">%USERPROFILE%\.codex\config.toml</code><br>
+<code style="background: #1a1a1c; padding: 2px 6px; border-radius: 4px;">%USERPROFILE%\.codex\auth.json</code>
+</p>
+</td>
+<td width="50%" style="vertical-align: top;">
+<p style="color: #86868b; margin: 0 0 8px 0; font-size: 0.85rem;"><strong style="color: #34c759;">Linux / macOS 路径:</strong></p>
+<p style="color: #e0e0e0; margin: 0 0 10px 0; font-size: 0.75rem;">
+<code style="background: #1a1a1c; padding: 2px 6px; border-radius: 4px;">~/.codex/config.toml</code><br>
+<code style="background: #1a1a1c; padding: 2px 6px; border-radius: 4px;">~/.codex/auth.json</code>
+</p>
+</td>
+</tr>
+</table>
+
+<p style="color: #86868b; margin: 15px 0 8px 0; font-size: 0.85rem;"><strong style="color: #ff8e53;">config.toml 内容:</strong></p>
+<div style="background: #1a1a1c; padding: 12px 15px; border-radius: 8px; margin-bottom: 12px; font-family: 'Courier New', monospace; font-size: 0.8rem; color: #e0e0e0; overflow-x: auto;">
+<code style="color: #9c27b0;">model_provider</code> = <code style="color: #34c759;">"xhm"</code><br>
+<code style="color: #9c27b0;">model</code> = <code style="color: #34c759;">"gpt-5-codex"</code><br>
+<code style="color: #9c27b0;">model_reasoning_effort</code> = <code style="color: #34c759;">"high"</code><br>
+<code style="color: #9c27b0;">disable_response_storage</code> = <code style="color: #ff8e53;">true</code><br>
+<br>
+<code style="color: #86868b;">[model_providers.xhm]</code><br>
+<code style="color: #9c27b0;">name</code> = <code style="color: #34c759;">"xhm"</code><br>
+<code style="color: #9c27b0;">base_url</code> = <code style="color: #34c759;">"https://new-api.xhm.gd.cn/v1"</code><br>
+<code style="color: #9c27b0;">wire_api</code> = <code style="color: #34c759;">"responses"</code><br>
+<code style="color: #9c27b0;">env_key</code> = <code style="color: #34c759;">"custom"</code><br>
+<code style="color: #9c27b0;">requires_openai_auth</code> = <code style="color: #ff8e53;">true</code>
+</div>
+
+<p style="color: #86868b; margin: 0 0 8px 0; font-size: 0.85rem;"><strong style="color: #ff8e53;">auth.json 内容:</strong></p>
+<div style="background: #1a1a1c; padding: 12px 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.8rem; color: #e0e0e0; overflow-x: auto;">
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<code style="color: #34c759;">"OPENAI_API_KEY"</code>: <code style="color: #ff8e53;">"您的 API Key"</code><br>
+}
+</div>
+</div>
+
 </div>
 
 </div>
