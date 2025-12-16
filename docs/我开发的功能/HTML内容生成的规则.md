@@ -309,7 +309,6 @@ HTML格式要求总结
 <code style="color: #9c27b0;">name</code> = <code style="color: #34c759;">"xhm"</code><br>
 <code style="color: #9c27b0;">base_url</code> = <code style="color: #34c759;">"https://new-api.xhm.gd.cn/v1"</code><br>
 <code style="color: #9c27b0;">wire_api</code> = <code style="color: #34c759;">"responses"</code><br>
-<code style="color: #9c27b0;">env_key</code> = <code style="color: #34c759;">"custom"</code><br>
 <code style="color: #9c27b0;">requires_openai_auth</code> = <code style="color: #ff8e53;">true</code>
 </div>
 
