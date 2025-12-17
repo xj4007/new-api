@@ -783,53 +783,56 @@ func HandleClaudeResponseData(c *gin.Context, info *relaycommon.RelayInfo, claud
 	}
 
 	// 尝试写入响应到客户端
+	common.SysLog(fmt.Sprintf("[ClaudeHandler] About to write response, size: %d bytes", len(responseData)))
 	writeErr := service.IOCopyBytesGracefully(c, httpResp, responseData)
 
-	// 如果写入失败，尝试缓存响应（仅在客户端断开且响应有效时）
 	if writeErr != nil {
-		// 检查客户端是否断开
-		select {
-		case <-c.Request.Context().Done():
-			// 客户端已断开，尝试缓存响应
-			if cacheKey, exists := c.Get("response_cache_key"); exists {
-				cacheKeyStr, ok := cacheKey.(string)
-				if ok && cacheKeyStr != "" {
-					// 准备缓存数据
-					headers := make(map[string]string)
-					if httpResp != nil {
-						for k, v := range httpResp.Header {
-							if len(v) > 0 {
-								headers[k] = v[0]
-							}
-						}
-					}
+		common.SysLog(fmt.Sprintf("[ClaudeHandler] ❌ Write error occurred: %v", writeErr))
+	} else {
+		common.SysLog("[ClaudeHandler] ✅ Response written successfully to client")
+	}
 
-					// 序列化 usage
-					var usageJSON json.RawMessage
-					if claudeInfo.Usage != nil {
-						usageData, _ := json.Marshal(claudeInfo.Usage)
-						usageJSON = usageData
-					}
+	// 💾 缓存所有非流式响应（有效期 3 分钟）
+	// 不管客户端是否断开，都缓存响应以便重试时使用
+	if cacheKey, exists := c.Get("response_cache_key"); exists {
+		cacheKeyStr, ok := cacheKey.(string)
+		if ok && cacheKeyStr != "" {
+			common.SysLog(fmt.Sprintf("[ClaudeHandler] 💾 Caching response with key: %s", service.TruncateCacheKey(cacheKeyStr)))
 
-					cachedResp := &service.CachedResponse{
-						StatusCode: http.StatusOK,
-						Headers:    headers,
-						Body:       responseData,
-						Usage:      usageJSON,
-					}
-
-					if httpResp != nil {
-						cachedResp.StatusCode = httpResp.StatusCode
-					}
-
-					// 缓存响应
-					if err := service.CacheResponse(cacheKeyStr, cachedResp, service.DefaultCacheTTL); err != nil {
-						common.SysLog(fmt.Sprintf("[ClaudeHandler] Failed to cache response: %v", err))
+			// 准备缓存数据
+			headers := make(map[string]string)
+			if httpResp != nil {
+				for k, v := range httpResp.Header {
+					if len(v) > 0 {
+						headers[k] = v[0]
 					}
 				}
 			}
-		default:
-			// 其他写入错误，不缓存
+
+			// 序列化 usage
+			var usageJSON json.RawMessage
+			if claudeInfo.Usage != nil {
+				usageData, _ := json.Marshal(claudeInfo.Usage)
+				usageJSON = usageData
+			}
+
+			cachedResp := &service.CachedResponse{
+				StatusCode: http.StatusOK,
+				Headers:    headers,
+				Body:       responseData,
+				Usage:      usageJSON,
+			}
+
+			if httpResp != nil {
+				cachedResp.StatusCode = httpResp.StatusCode
+			}
+
+			// 缓存响应（TTL: 3分钟）
+			if err := service.CacheResponse(cacheKeyStr, cachedResp, service.DefaultCacheTTL); err != nil {
+				common.SysLog(fmt.Sprintf("[ClaudeHandler] ❌ Failed to cache response: %v", err))
+			} else {
+				common.SysLog("[ClaudeHandler] ✅ Response cached successfully (TTL: 3min)")
+			}
 		}
 	}
 
