@@ -1,0 +1,71 @@
+# New-API Docker Compose Configuration
+# 
+# Quick Start:
+#   1. docker-compose up -d
+#   2. Access at http://localhost:3000
+#
+# Using MySQL instead of PostgreSQL:
+#   1. Comment out the postgres service and SQL_DSN line 15
+#   2. Uncomment the mysql service and SQL_DSN line 16
+#   3. Uncomment mysql in depends_on (line 28)
+#   4. Uncomment mysql_data in volumes section (line 64)
+#
+# ⚠️  IMPORTANT: Change all default passwords before deploying to production!
+
+version: '3.4' # For compatibility with older Docker versions
+
+services:
+  new-api:
+    build:
+      context: .
+      args:
+        - GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,https://goproxy.io,direct
+    # image: calciumion/new-api:latest  # 注释掉远程镜像,使用本地构建
+    container_name: new-api
+    restart: always
+    command: --log-dir /app/logs
+    ports:
+      - "8093:3000"  # 外部使用3010端口访问，避免端口冲突
+    volumes:
+      - ./data:/data
+      - ./logs:/app/logs
+    env_file:
+      - .env  # 使用.env文件中的环境变量配置
+    
+    # 移除host网络模式，使用默认bridge网络可以访问外部IP
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:3000/api/status | grep -o '\"success\":\\s*true' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis服务（可选，如果需要缓存）
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - "8092:6379"  # 映射到宿主机8092端口
+    command: redis-server --requirepass XIANjian4SANyun  # 设置密码
+    volumes:
+      - ./redis_data:/data  # 数据持久化到本地目录
+
+  # MySQL服务
+  mysql:
+    image: mysql:8.2
+    container_name: mysql
+    restart: always
+    ports:
+      - "13306:3306"  # 映射到宿主机13306端口，外部可访问
+    environment:
+      MYSQL_ROOT_PASSWORD: XIANjian4  # root密码
+      MYSQL_DATABASE: new-api         # 自动创建的数据库
+      MYSQL_USER: support             # 创建普通用户
+      MYSQL_PASSWORD: XIANjian4       # 普通用户密码
+      TZ: Asia/Shanghai               # 时区设置
+    volumes:
+      - ./mysql_data:/var/lib/mysql   # 数据持久化到本地目录
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password

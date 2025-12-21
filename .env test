@@ -1,0 +1,165 @@
+# ============================================================
+# 核心配置 - 使用Docker容器内部服务
+# ============================================================
+
+# 端口号
+PORT=3000
+
+# 前端基础URL（如果需要）
+# FRONTEND_BASE_URL=https://your-frontend-url.com
+
+# 会话密钥（多机部署必须相同，建议修改为复杂字符串）
+SESSION_SECRET=xj4
+
+# 节点类型（master=主节点，slave=从节点）
+NODE_TYPE=master
+
+# ============================================================
+# 数据库配置 - 使用容器内MySQL
+# ============================================================
+
+# MySQL连接配置：
+# - 容器内部访问使用：mysql:3306（Docker网络内通信）
+# - 外部工具访问使用：localhost:13306 或 服务器IP:13306
+SQL_DSN=support:xj4@tcp(mysql:3306)/new-api?parseTime=true
+
+# 如果需要单独的日志数据库（可选）
+# LOG_SQL_DSN=support:XIANjian4@tcp(mysql:3306)/new-api-logs?parseTime=true
+
+# 数据库连接池配置
+SQL_MAX_IDLE_CONNS=100
+SQL_MAX_OPEN_CONNS=1000
+SQL_MAX_LIFETIME=60
+
+# ============================================================
+# Redis缓存配置 - 使用容器内Redis
+# ============================================================
+
+# Redis连接配置：
+# - 容器内部访问使用：redis://redis:6379
+# - 外部工具访问使用：localhost:8092 或 服务器IP:8092
+REDIS_CONN_STRING=redis://:xj4sy@redis:6379/1
+# 同步频率（单位：秒）
+SYNC_FREQUENCY=60
+
+# 内存缓存启用
+MEMORY_CACHE_ENABLED=true
+
+# 渠道更新频率（单位：秒）
+CHANNEL_UPDATE_FREQUENCY=30
+
+# 批量更新启用
+BATCH_UPDATE_ENABLED=true
+
+# 批量更新间隔（单位：秒）
+BATCH_UPDATE_INTERVAL=5
+
+# ============================================================
+# 性能和超时配置
+# ============================================================
+
+# 更新任务启用
+UPDATE_TASK=true
+
+# 所有请求超时时间，单位秒，默认为0，表示不限制
+RELAY_TIMEOUT=0
+
+# 流模式无响应超时时间，单位秒
+STREAMING_TIMEOUT=300
+
+# ============================================================
+# 调试和日志配置
+# ============================================================
+
+# 启用调试模式
+# DEBUG=true
+
+# 启用pprof性能分析
+# ENABLE_PPROF=true
+
+# 设置 Dify 渠道是否输出工作流和节点信息到客户端
+# DIFY_DEBUG=true
+
+# ============================================================
+# 其他功能配置
+# ============================================================
+
+# 生成默认token
+GENERATE_DEFAULT_TOKEN=false
+
+# Gemini 识别图片最大数量
+GEMINI_VISION_MAX_IMAGE_NUM=16
+
+# 是否统计图片token
+GET_MEDIA_TOKEN=true
+
+# 是否在非流模式下统计图片token
+GET_MEDIA_TOKEN_NOT_STREAM=false
+
+# Cohere 安全设置
+# COHERE_SAFETY_SETTING=NONE
+
+# LinuxDo相关配置
+LINUX_DO_TOKEN_ENDPOINT=https://connect.linux.do/oauth2/token
+LINUX_DO_USER_ENDPOINT=https://connect.linux.do/api/user
+
+# 节点类型
+# 如果是主节点则为master
+# NODE_TYPE=master
+
+# ============================================================
+# 内容审核配置 (Content Moderation)
+# ============================================================
+
+# ========== 基础配置 ==========
+# 是否启用内容审核 (true/false)
+CONTENT_MODERATION_ENABLED=false
+
+# ========== Phase 1: 快速检测模型配置 ==========
+# 审核API基础地址 (硅基流动)
+MODERATION_API_BASE_URL=https://api.siliconflow.cn
+
+# 审核API密钥
+MODERATION_API_KEY=sk-xxx
+
+# Phase 1 审核模型名称
+MODERATION_MODEL=zai-org/GLM-4.6
+
+# 审核响应最大Token数
+MODERATION_MAX_TOKENS=100
+
+# API调用超时时间（秒）
+MODERATION_TIMEOUT=10
+
+# ========== Phase 2: Pro模型复核配置 ==========
+# Phase 2 Pro模型名称 (留空则不启用二级审核)
+MODERATION_PRO_MODEL=Qwen/Qwen3-Coder-480B-A35B-Instruct
+
+# Phase 2 Pro模型API密钥 (可以和Phase 1相同)
+MODERATION_PRO_API_KEY=sk-xx
+
+# Phase 2 Pro模型API基础地址 (留空则使用 MODERATION_API_BASE_URL)
+MODERATION_PRO_API_BASE_URL=https://api.siliconflow.cn
+
+# ========== 渠道过滤配置 ==========
+# 只对这些渠道ID进行审核（逗号分隔）
+# 留空表示审核所有渠道
+MODERATION_CHANNEL_IDS=14,17,18
+
+# ========== Session缓存配置 ==========
+# 是否启用Session级缓存 (true/false)
+MODERATION_SESSION_CACHE_ENABLED=true
+
+# Session缓存过期时间（秒），默认1800秒=30分钟
+MODERATION_SESSION_CACHE_TTL=1800
+
+# ========== 内容提取配置 ==========
+# 每个消息/系统提示词最大提取字符数
+MODERATION_CONTENT_MAX_CHARS=100
+
+# ========== 重试和失败策略配置 ==========
+# 审核API最大重试次数（失败N次后根据策略处理）
+MODERATION_MAX_RETRIES=1
+
+# 审核失败时是否放行 (true=放行, false=降级到敏感词检测)
+MODERATION_FAIL_OPEN=true

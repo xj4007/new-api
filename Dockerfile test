@@ -6,6 +6,10 @@ ARG TARGETARCH
 ENV GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH:-amd64}
 ENV GOEXPERIMENT=greenteagc
 
+# 接收构建参数并设置为环境变量,使用国内Go代理加速依赖下载
+ARG GOPROXY=https://goproxy.cn,https://mirrors.aliyun.com/goproxy/,https://goproxy.io,direct
+ENV GOPROXY=${GOPROXY}
+
 WORKDIR /build
 
 ADD go.mod go.sum ./
