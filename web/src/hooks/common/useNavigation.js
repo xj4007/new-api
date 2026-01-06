@@ -19,7 +19,7 @@ For commercial licensing, please contact support@quantumnous.com
 
 import { useMemo } from 'react';
 
-export const useNavigation = (t, docsLink, headerNavModules) => {
+export const useNavigation = (t, docsLink, headerNavModules, tokenUsageUrl) => {
   const mainNavLinks = useMemo(() => {
     // 默认配置，如果没有传入配置则显示所有模块
     const defaultModules = {
@@ -56,7 +56,8 @@ export const useNavigation = (t, docsLink, headerNavModules) => {
       {
         text: t('令牌用量'),
         itemKey: 'tokenUsage',
-        to: '/token-query',
+        isExternal: true,
+        externalLink: tokenUsageUrl || 'http://36.137.19.243:8093',
       },
       ...(docsLink
         ? [
@@ -88,7 +89,7 @@ export const useNavigation = (t, docsLink, headerNavModules) => {
       }
       return modules[link.itemKey] === true;
     });
-  }, [t, docsLink, headerNavModules]);
+  }, [t, docsLink, headerNavModules, tokenUsageUrl]);
 
   return {
     mainNavLinks,

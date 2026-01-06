@@ -3,7 +3,6 @@ package model
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/QuantumNous/new-api/common"
@@ -61,48 +60,6 @@ func formatUserLogs(logs []*Log) {
 		logs[i].Other = common.MapToJsonStr(otherMap)
 		logs[i].Id = logs[i].Id % 1024
 	}
-}
-
-func GetLogByKey(key string) (logs []*Log, err error) {
-	logs, _, err = GetLogByKeyWithPagination(key, 0, 0, false)
-	return logs, err
-}
-
-func GetLogByKeyWithPagination(key string, offset int, limit int, sortDesc bool) (logs []*Log, total int64, err error) {
-	trimmedKey := strings.TrimPrefix(key, "sk-")
-	if offset < 0 {
-		offset = 0
-	}
-	if limit < 0 {
-		limit = 0
-	}
-
-	var tk Token
-	if err = DB.Model(&Token{}).Where(logKeyCol+"=?", trimmedKey).First(&tk).Error; err != nil {
-		return nil, 0, err
-	}
-
-	countQuery := LOG_DB.Model(&Log{}).Where("token_id=?", tk.Id)
-	if err = countQuery.Count(&total).Error; err != nil {
-		return nil, 0, err
-	}
-
-	query := LOG_DB.Model(&Log{}).Where("token_id=?", tk.Id)
-	if sortDesc {
-		query = query.Order("logs.created_at DESC").Order("logs.id DESC")
-	} else {
-		query = query.Order("logs.created_at ASC").Order("logs.id ASC")
-	}
-	if limit > 0 {
-		query = query.Offset(offset).Limit(limit)
-	}
-
-	if err = query.Find(&logs).Error; err != nil {
-		return nil, 0, err
-	}
-
-	formatUserLogs(logs)
-	return logs, total, nil
 }
 
 func RecordLog(userId int, logType int, content string) {

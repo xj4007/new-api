@@ -12,6 +12,7 @@ const (
 
 type GeneralSetting struct {
 	DocsLink            string `json:"docs_link"`
+	TokenUsageUrl       string `json:"token_usage_url"` // 令牌用量查询外部链接
 	PingIntervalEnabled bool   `json:"ping_interval_enabled"`
 	PingIntervalSeconds int    `json:"ping_interval_seconds"`
 	// 当前站点额度展示类型：USD / CNY / TOKENS
@@ -25,6 +26,7 @@ type GeneralSetting struct {
 // 默认配置
 var generalSetting = GeneralSetting{
 	DocsLink:                   "https://docs.newapi.pro",
+	TokenUsageUrl:              "http://36.137.19.243:8093",
 	PingIntervalEnabled:        false,
 	PingIntervalSeconds:        60,
 	QuotaDisplayType:           QuotaDisplayTypeUSD,

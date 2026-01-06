@@ -49,6 +49,7 @@ export const useHeaderBar = ({ onMobileMenuToggle, drawerOpen }) => {
 
   const isSelfUseMode = statusState?.status?.self_use_mode_enabled || false;
   const docsLink = statusState?.status?.docs_link || '';
+  const tokenUsageUrl = statusState?.status?.token_usage_url || '';
   const isDemoSiteMode = statusState?.status?.demo_site_enabled || false;
 
   // 获取顶栏模块配置
@@ -188,6 +189,7 @@ export const useHeaderBar = ({ onMobileMenuToggle, drawerOpen }) => {
     isNewYear,
     isSelfUseMode,
     docsLink,
+    tokenUsageUrl,
     isDemoSiteMode,
     isConsoleRoute,
     theme,

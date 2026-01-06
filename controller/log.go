@@ -3,7 +3,6 @@ package controller
 import (
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/model"
@@ -81,34 +80,6 @@ func SearchUserLogs(c *gin.Context) {
 		"data":    logs,
 	})
 	return
-}
-
-func GetLogByKey(c *gin.Context) {
-	key := c.Query("key")
-	pageInfo := common.GetPageQuery(c)
-	order := strings.ToLower(c.DefaultQuery("order", "desc"))
-	sortDesc := order != "asc"
-	logs, total, err := model.GetLogByKeyWithPagination(key, pageInfo.GetStartIdx(), pageInfo.GetPageSize(), sortDesc)
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
-		return
-	}
-	pageInfo.SetTotal(int(total))
-	pageInfo.SetItems(logs)
-	c.JSON(http.StatusOK, gin.H{
-		"success":  true,
-		"message":  "",
-		"data":     logs,
-		"total":    total,
-		"pagination": gin.H{
-			"page":      pageInfo.Page,
-			"page_size": pageInfo.PageSize,
-			"total":     total,
-		},
-	})
 }
 
 func GetLogsStat(c *gin.Context) {

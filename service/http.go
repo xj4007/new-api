@@ -89,7 +89,6 @@ func DecompressResponseBody(resp *http.Response) (io.ReadCloser, error) {
 		common.SysLog(fmt.Sprintf("[DecompressResponseBody] No decompression needed (encoding: %s)", encoding))
 		return resp.Body, nil
 	}
-	c.Writer.Flush()
 }
 
 // ReadResponseBody reads the entire response body with automatic decompression
