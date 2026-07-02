@@ -305,6 +305,9 @@ docker run --name new-api -d --restart always \
 | **远程数据库** | MySQL ≥ 5.7.8 或 PostgreSQL ≥ 9.6 |
 | **容器引擎** | Docker / Docker Compose |
 
+> [!IMPORTANT]
+> 如果当前目标是生产环境，并且准备采用“应用 / PostgreSQL / Redis 独立部署”方式，部署或升级前请先阅读 [docs/installation/production-deployment-baseline.md](./docs/installation/production-deployment-baseline.md)。
+
 ### ⚙️ 环境变量配置
 
 <details>

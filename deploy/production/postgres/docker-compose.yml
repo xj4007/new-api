@@ -1,0 +1,34 @@
+version: "3.4"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: ${POSTGRES_CONTAINER_NAME:-new-api-postgres}
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      TZ: ${TZ:-Asia/Shanghai}
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    networks:
+      new-api-infra:
+        aliases:
+          - new-api-postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    # Uncomment only when app nodes on other hosts must access PostgreSQL.
+    # Restrict access with a private network or security group.
+    # ports:
+    #   - "${POSTGRES_BIND_HOST:-127.0.0.1}:${POSTGRES_HOST_PORT:-5432}:5432"
+
+networks:
+  new-api-infra:
+    external: true
+    name: new-api-infra

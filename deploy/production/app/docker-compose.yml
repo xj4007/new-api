@@ -1,0 +1,29 @@
+version: "3.4"
+
+services:
+  new-api:
+    build:
+      context: ../../..
+      dockerfile: Dockerfile
+    container_name: ${NEW_API_CONTAINER_NAME:-new-api-app}
+    restart: always
+    command: --log-dir /app/logs
+    env_file:
+      - .env
+    ports:
+      - "${APP_BIND_HOST:-127.0.0.1}:${APP_HOST_PORT:-3000}:3000"
+    volumes:
+      - ./data:/data
+      - ./logs:/app/logs
+    networks:
+      - new-api-infra
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:3000/api/status | grep -o '\"success\":\\s*true' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  new-api-infra:
+    external: true
+    name: new-api-infra
