@@ -8,7 +8,7 @@
 
 - 应用、PostgreSQL、Redis 分离部署
 - 三者使用独立的 Docker Compose 目录
-- 应用基于当前仓库代码构建部署
+- 应用在本地编译后上传运行，不在服务器编译源码
 - 旧服务器 `43.154.19.173` 只作为历史迁移来源，不再参与新生产架构
 - 后续预留应用节点扩容能力，但不把数据库和 Redis 混进应用 Compose
 
@@ -48,10 +48,10 @@ flowchart LR
 
 说明：
 
-- `app/`：放当前仓库代码检出
+- `app/`：放应用运行目录、生产模板、`.env`、本地上传的发布产物
 - `postgres/`：放 PostgreSQL Compose、`.env`、数据卷目录
 - `redis/`：放 Redis Compose、`.env`、数据卷目录
-- `backups/`：放数据库备份、迁移中间文件、回滚资料
+- `backups/`：历史备份、迁移中间文件、人工留档资料；默认升级流程不依赖这里
 
 如果实际目录与本文不同，后续部署文档和运维命令也必须同步修正，避免“文档写一套、服务器跑一套”。
 
@@ -76,7 +76,7 @@ flowchart LR
 
 这样做的原因：
 
-- 应用需要直接依赖当前仓库代码构建
+- 应用现在由本地构建并上传单个发布产物，服务器只负责运行
 - PostgreSQL 和 Redis 作为独立基础设施，更适合放在独立目录管理
 
 ## 5. 首次初始化顺序
@@ -289,21 +289,25 @@ docker compose --env-file .env up -d
 
 ### 9.3 应用
 
-部署或升级应用：
+本地构建发布产物：
 
 ```bash
-cd /srv/new-api/app
-cp deploy/production/app/.env.example deploy/production/app/.env
-docker compose \
-  --env-file deploy/production/app/.env \
-  -f deploy/production/app/docker-compose.yml \
-  up -d --build
+powershell -File deploy/production/app/build-local-release.ps1
+```
+
+发布到服务器：
+
+```bash
+python deploy/production/app/publish-local-release.py
 ```
 
 说明：
 
-- 应用使用当前仓库代码构建
-- 后续升级应用时，优先 `git pull` 后重新 `--build`
+- 本地脚本会输出 `deploy/production/app/release/new-api`
+- 服务器上的应用 Compose 直接挂载 `./release:/app/release:ro`
+- 容器启动命令固定为 `/app/release/new-api --log-dir /app/logs`
+- 当前运行时镜像为 `alpine:3.22`
+- 后续升级应用时，不再依赖服务器 `git pull` 后本地构建源码
 - 不要把数据库和 Redis 的生命周期耦合到应用 Compose
 - 如果仓库里的 `deploy/production/postgres/` 或 `deploy/production/redis/` 模板发生变化，要手动同步到 `/srv/new-api/postgres/` 和 `/srv/new-api/redis/`
 
@@ -347,19 +351,23 @@ docker compose \
 
 ## 11. 回滚原则
 
-每次升级前必须先做数据库备份。
+默认升级流程不再要求每次发布前先做数据库备份。
 
 原因：
 
 - 应用回滚通常比数据库回滚简单
 - 一旦应用新版本触发了数据库结构迁移，直接回退代码未必等于完全可回退
 
-最小回滚材料：
+当前默认回滚方式：
 
-- 升级前的 Git 提交号
-- 升级前的 PostgreSQL 备份
-- 升级前的应用 `.env`
-- 升级前的 Compose 文件副本
+- 重新执行本地构建并上传上一个可用版本的 `release/new-api`
+- 必要时一并回退 `deploy/production/app/docker-compose.yml`
+- 保持生产 `.env` 不变，除非本次变更明确修改了运行参数
+
+额外说明：
+
+- 如果某次发布明确涉及数据库结构迁移、危险数据修正、或不可逆脚本，再单独决定是否人工备份
+- 默认不要把“先备份再部署”写成每次都执行的固定动作
 
 ## 12. 安全要求
 

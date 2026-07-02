@@ -1,13 +1,11 @@
-version: "3.4"
-
 services:
   new-api:
-    build:
-      context: ../../..
-      dockerfile: Dockerfile
+    image: alpine:3.22
     container_name: ${NEW_API_CONTAINER_NAME:-new-api-app}
     restart: always
-    command: --log-dir /app/logs
+    working_dir: /data
+    entrypoint: ["/app/release/new-api"]
+    command: ["--log-dir", "/app/logs"]
     env_file:
       - .env
     ports:
@@ -15,6 +13,7 @@ services:
     volumes:
       - ./data:/data
       - ./logs:/app/logs
+      - ./release:/app/release:ro
     networks:
       - new-api-infra
     healthcheck:

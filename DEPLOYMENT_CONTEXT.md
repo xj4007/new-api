@@ -20,7 +20,7 @@
 - PostgreSQL 独立部署
 - Redis 独立部署
 - 三者不放在同一个 Compose 里
-- 应用基于当前仓库代码构建
+- 应用在本地先编译产物，再上传到服务器运行
 - 后续预留应用节点扩容能力
 
 推荐拓扑：
@@ -53,10 +53,10 @@ PostgreSQL  Redis
 
 目录职责：
 
-- `/srv/new-api/app`：仓库代码
+- `/srv/new-api/app`：应用运行目录与部署模板
 - `/srv/new-api/postgres`：PostgreSQL 独立 Compose
 - `/srv/new-api/redis`：Redis 独立 Compose
-- `/srv/new-api/backups`：数据库备份
+- `/srv/new-api/backups`：历史备份或人工留档目录，默认部署流程不使用
 
 Docker 网络约定：
 
@@ -83,7 +83,7 @@ Docker 网络约定：
 
 ## 5. 合并 master 后必须先做什么
 
-以后你修改代码，并且把 `master` 分支的新代码合并过来之后，不要直接部署，先做下面这些检查。
+以后你修改代码，并且把上游主分支的新代码合并过来之后，不要直接部署，先做下面这些检查。
 
 ### 5.1 先看哪些文件变了
 
@@ -206,21 +206,29 @@ docker compose --env-file .env up -d
 
 ### 8.3 应用
 
-服务器目录：
+本地先编译：
 
 ```bash
-/srv/new-api/app
+powershell -File deploy/production/app/build-local-release.ps1
 ```
 
-启动或升级：
+这一步会完成：
+
+- `bun install` 与前端构建
+- Linux `amd64` 版 `new-api` 二进制编译
+- 产物输出到 `deploy/production/app/release/new-api`
+
+发布到服务器：
 
 ```bash
-cd /srv/new-api/app
-docker compose \
-  --env-file deploy/production/app/.env \
-  -f deploy/production/app/docker-compose.yml \
-  up -d --build
+python deploy/production/app/publish-local-release.py
 ```
+
+服务器实际运行方式：
+
+- `deploy/production/app/docker-compose.yml` 不再在服务器构建源码
+- 容器直接运行 `deploy/production/app/release/new-api`
+- 当前运行时镜像为 `alpine:3.22`
 
 ## 9. 当前生产端口约定
 
@@ -246,13 +254,14 @@ ss -lntp | grep ':3000'
 以后每次标准部署按这个顺序做：
 
 1. 读取 `DEPLOYMENT_CONTEXT.md`
-2. 拉取或合并最新代码
-3. 做“合并 master 后检查”
+2. 在本地拉取或合并最新代码
+3. 做“合并主分支后检查”
 4. 判断是否需要更新服务器 `.env`
 5. 判断是否需要同步 `deploy/production/postgres` / `redis` 模板
-6. 在服务器更新 `/srv/new-api/app` 代码
-7. 执行应用重建部署
-8. 做部署后验证
+6. 在本地执行 `build-local-release.ps1`
+7. 上传 `docker-compose.yml` 与 `release/new-api` 到服务器
+8. 在服务器执行 `docker compose up -d`
+9. 做部署后验证
 
 ## 11. 服务器部署后必须验证什么
 
@@ -299,19 +308,20 @@ docker compose \
 - 后台登录正常
 - 用户、渠道、日志、令牌都能正常显示
 
-## 12. 回滚前必须记得备份什么
+## 12. 关于备份与回滚
 
-每次升级前至少保留：
+当前默认升级流程不再包含“部署前自动备份”。
 
-- 升级前 Git 提交号
-- 升级前 PostgreSQL 备份
-- 升级前应用 `.env`
-- 升级前 Compose 文件副本
+当前默认回滚思路：
 
-原因：
+- 重新上传上一个可用版本的 `release/new-api`
+- 如有需要，同时回退 `deploy/production/app/docker-compose.yml`
+- 保持现有 `.env` 不变，除非本次变更明确要求调整
 
-- 应用代码回滚容易
-- 数据库结构一旦被新版本迁移，未必能无损直接退回旧版本
+注意：
+
+- 如果某次升级明确包含数据库结构迁移或高风险数据变更，再单独决定是否人工备份
+- 默认不要把备份当成每次部署的固定步骤
 
 ## 13. 后续问 AI 时建议怎么说
 
@@ -324,7 +334,7 @@ docker compose \
 如果是合并 master 后部署，可以直接说：
 
 ```text
-先读取 DEPLOYMENT_CONTEXT.md，然后帮我检查这次合并 master 后需要同步哪些配置，再部署到服务器。
+先读取 DEPLOYMENT_CONTEXT.md，然后帮我检查这次合并主分支后需要同步哪些配置，并按本地编译后上传的方式部署到服务器。
 ```
 
 如果是排查部署问题，可以直接说：
