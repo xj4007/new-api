@@ -10,6 +10,10 @@ const semiUiDir = path.resolve(
   path.dirname(require.resolve('@douyinfe/semi-ui')),
   '../..',
 )
+const vchartDir = path.dirname(require.resolve('@visactor/vchart/package.json'))
+const visactorRuntimeDir = path.resolve(vchartDir, 'node_modules', '@visactor')
+const vrenderCoreDir = path.resolve(visactorRuntimeDir, 'vrender-core')
+const vrenderKitsDir = path.resolve(visactorRuntimeDir, 'vrender-kits')
 
 export default defineConfig(({ envMode }) => {
   const env = loadEnv({ mode: envMode, prefixes: ['VITE_'] })
@@ -47,6 +51,9 @@ export default defineConfig(({ envMode }) => {
           semiUiDir,
           'dist/css/semi.css',
         ),
+        // Force the classic chart stack to share VChart's runtime singletons.
+        '@visactor/vrender-core': vrenderCoreDir,
+        '@visactor/vrender-kits': vrenderKitsDir,
       },
     },
     html: {

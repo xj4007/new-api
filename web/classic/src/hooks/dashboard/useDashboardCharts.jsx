@@ -18,7 +18,6 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 import { useState, useCallback, useEffect } from 'react';
-import { initVChartSemiTheme } from '@visactor/vchart-semi-theme';
 import {
   modelColorMap,
   renderNumber,
@@ -36,6 +35,7 @@ import {
   initializeMaps,
   processUserData,
 } from '../../helpers/dashboard';
+import { initClassicDashboardChartTheme } from '../../helpers/dashboardChartTheme';
 
 const USER_COLORS = [
   '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6',
@@ -609,9 +609,7 @@ export const useDashboardCharts = (
 
   // ========== 初始化图表主题 ==========
   useEffect(() => {
-    initVChartSemiTheme({
-      isWatchingThemeSwitch: true,
-    });
+    initClassicDashboardChartTheme();
   }, []);
 
   return {
